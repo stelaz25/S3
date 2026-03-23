@@ -1,7 +1,14 @@
-AWSTemplateFormatVersion: 2019-09-09
-Resorces:
+# Description: This revision updates the CloudFormation template to correct
+#              resource type errors, restore the required BucketPolicy type,
+#              and ensure the template validates successfully. It also includes
+#              proper website hosting configuration and public-read access.
+#
+# Revision: 1.1
+# Date: 2026-03-22
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
   S3Bucket:
-    Type: 'AWS:S3:Bucket'
+    Type: 'AWS::S3::Bucket'
     Properties:
       PublicAccessBlockConfiguration:
         BlockPublicAcls: false
@@ -13,9 +20,11 @@ Resorces:
         ErrorDocument: error.html
     DeletionPolicy: Retain
     UpdateReplacePolicy: Retain
-BucketPolicy:
-    #Type: 'AWS::S3::BucketPolicy'
+
+  BucketPolicy:
+    Type: 'AWS::S3::BucketPolicy'
     Properties:
+      Bucket: !Ref S3Bucket
       PolicyDocument:
         Id: MyPolicy
         Version: 2012-10-17
@@ -29,18 +38,19 @@ BucketPolicy:
               - - 'arn:aws:s3:::'
                 - !Ref S3Bucket
                 - /*
-      Bucket: !Ref S3Bucket
+                
 Outputs:
   WebsiteURL:
+    Description: URL for website hosted on S3
     Value: !GetAtt 
       - S3Bucket
       - WebsiteURL
-    Description: URL for website hosted on S3
+
   S3BucketSecureURL:
+    Description: Name of S3 bucket to hold website content
     Value: !Join 
       - ''
       - - 'https://'
         - !GetAtt 
           - S3Bucket
           - DomainName
-    Description: Name of S3 bucket to hold website content
